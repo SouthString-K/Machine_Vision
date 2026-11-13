@@ -6,7 +6,7 @@ using namespace cv;
 
 int main(int argc, char** argv)
 {
-    string path = argc > 1 ? argv[1] : "paperclips.jpg";
+    string path = argc > 1 ? argv[1] : "images/paperclips.jpg";
     Mat src = imread(path, IMREAD_COLOR);
     if (src.empty()) { cerr << "cannot read " << path << endl; return -1; }
 
@@ -44,8 +44,8 @@ int main(int argc, char** argv)
             FONT_HERSHEY_SIMPLEX, 1.2, Scalar(255, 0, 0), 3);
 
     cout << "Paper clip count: " << count << endl;
-    imwrite("binary.png", bin);
-    imwrite("result.png", out);
+    imwrite("images/paperclips_binary.png", bin);
+    imwrite("images/paperclips_result.png", out);
     if (argc > 2) return 0; // no GUI when 2nd arg given
     imshow("result", out);
     waitKey(0);

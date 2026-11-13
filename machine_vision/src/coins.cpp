@@ -6,15 +6,19 @@ using namespace cv;
 
 int main(int argc, char** argv)
 {
-    string path = argc > 1 ? argv[1] : "coins.jpg";
+    string path = argc > 1 ? argv[1] : "images/coins.jpg";
     Mat src = imread(path, IMREAD_COLOR);
     if (src.empty()) { cerr << "cannot read " << path << endl; return -1; }
 
     Mat gray, blur, bin;
     cvtColor(src, gray, COLOR_BGR2GRAY);
     GaussianBlur(gray, blur, Size(5, 5), 0);
-    // bright coins on dark background -> Otsu
-    threshold(blur, bin, 0, 255, THRESH_BINARY | THRESH_OTSU);
+        // estimate uneven background by opening with a kernel larger than a coin,
+    // then subtract so the dim coin and bright coins separate cleanly
+    Mat bg, diff;
+    morphologyEx(blur, bg, MORPH_OPEN, getStructuringElement(MORPH_ELLIPSE, Size(171, 171)));
+    subtract(blur, bg, diff);
+    threshold(diff, bin, 0, 255, THRESH_BINARY | THRESH_OTSU);
 
     Mat k = getStructuringElement(MORPH_ELLIPSE, Size(7, 7));
     morphologyEx(bin, bin, MORPH_CLOSE, k);
@@ -41,8 +45,8 @@ int main(int argc, char** argv)
             FONT_HERSHEY_SIMPLEX, 1.0, Scalar(255, 0, 0), 2);
 
     cout << "Coin count: " << count << endl;
-    imwrite("coins_binary.png", bin);
-    imwrite("coins_result.png", out);
+    imwrite("images/coins_binary.png", bin);
+    imwrite("images/coins_result.png", out);
     if (argc > 2) return 0; // no GUI when 2nd arg given
     imshow("result", out);
     waitKey(0);
